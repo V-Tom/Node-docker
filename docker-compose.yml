@@ -1,0 +1,54 @@
+version: '2'
+services:
+
+# http://www.voidcn.com/blog/ztsinghua/article/p-5986242.html
+
+###### redis container #####
+  redis:
+    build:
+       context: ./Redis
+    container_name: docker_redis
+    volumes:
+       - ./data/redis:/data
+       - ./logs/redis:/var/log/redis
+       - ./Redis/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+       - "6379:6379"
+    tty: true
+
+# # # ##### mongodb container #####
+  mongodb:
+    build:
+        context: ./Mongodb
+    container_name: docker_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongodb:/data/mongodb
+      - ./logs/mongodb:/var/log/mongodb
+    tty: true
+
+#### work container #####
+  workspace:
+    build:
+      context: ./Workspace
+    container_name: docker_work_space
+    depends_on:
+        - redis
+        - mongodb
+    ports:
+       - "4000:4000"
+    tty: true
+
+# # # # ##### Nginx container #####   
+#   nginx:
+#     build:
+#       context: ./Nginx
+#     container_name: docker_nginx      
+#     depends_on:
+#       - workspace
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     tty: true
+      

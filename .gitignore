@@ -1,0 +1,17 @@
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+*~
+
+.DS_Store
+/data/
+/logs/
+/Mongodb/mongodb.create.user.js
+/Nginx/t-tom.key
+/Nginx/t-tom.crt
+/WorkSpace/fullStackFrontPage.json
+/WorkSpace/local.conf.json
+/Mongodb/mongodb.deploy.sh

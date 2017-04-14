@@ -1,0 +1,20 @@
+FROM ubuntu:16.04
+
+MAINTAINER Nomand <iamnomand@gmail.com>
+
+RUN sed -i 's/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/mirrors\.aliyun\.com\/ubuntu\//g' /etc/apt/sources.list
+
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+    sudo \
+    nginx \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get -y autoclean
+
+RUN echo '正在复制 ssl '
+COPY nginx.conf /etc/nginx/
+COPY t-tom.crt /etc/nginx/t-tom.crt
+COPY t-tom.key /etc/nginx/t-tom.key
+
+CMD ["nginx", "-g", "daemon off;"]
+
+EXPOSE 80 443

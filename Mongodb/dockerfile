@@ -1,0 +1,50 @@
+FROM ubuntu:16.04
+
+MAINTAINER Nomand <iamnomand@gmail.com>
+
+RUN echo '正在安装 mongodb'
+
+RUN sed -i 's/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/mirrors\.aliyun\.com\/ubuntu\//g' /etc/apt/sources.list
+
+RUN export http_proxy=http://duotai:yjvby-mRq@sheraton.h.xduotai.com:23186
+RUN export https_proxy=$http_proxy
+
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+    sudo \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get -y autoclean
+
+RUN sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
+
+# 使用阿里云的镜像
+# RUN echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+RUN echo "deb [ arch=amd64,arm64 ] http://mirrors.aliyun.com/mongodb/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+    mongodb-org \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get -y autoclean
+
+RUN unset http_proxy
+RUN unset https_proxy
+
+ENV MONGO_ETC_PATH=/usr/local/etc/mongo
+
+# conf
+COPY ./mongod.conf $MONGO_ETC_PATH/mongod.conf
+# rewrite auth conf sh
+COPY ./mongodb.rewrite.conf.sh $MONGO_ETC_PATH/mongodb.rewrite.conf.sh
+
+# db create user js file
+COPY ./mongodb.create.user.js $MONGO_ETC_PATH/mongodb.create.user.js
+RUN sudo chmod +x $MONGO_ETC_PATH/mongodb.create.user.js
+
+# db exec shell script
+COPY ./mongodb.deploy.sh $MONGO_ETC_PATH/mongodb.deploy.sh
+RUN sudo chmod +x $MONGO_ETC_PATH/mongodb.deploy.sh
+
+CMD ["sudo","mongod","-f","/usr/local/etc/mongo/mongod.conf"]
+
+EXPOSE 27017

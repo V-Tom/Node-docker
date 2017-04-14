@@ -1,0 +1,26 @@
+FROM ubuntu:16.04
+
+MAINTAINER Nomand <iamnomand@gmail.com>
+
+RUN echo '正在安装 redis'
+
+RUN sed -i 's/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/mirrors\.aliyun\.com\/ubuntu\//g' /etc/apt/sources.list
+
+RUN apt-get update
+
+RUN apt-get install -y -q --no-install-recommends \
+    redis-server \
+    sudo \
+    # curl \
+    # wget \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get -y autoclean
+
+COPY ./redis.conf /usr/local/etc/redis/redis.conf
+
+# not daemonized redis server
+# see https://github.com/docker/compose/issues/4403
+
+CMD ["sudo","redis-server","/usr/local/etc/redis/redis.conf"]
+
+EXPOSE 6379
